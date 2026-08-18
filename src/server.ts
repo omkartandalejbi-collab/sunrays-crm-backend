@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { createApp } from './app.js';
 import { connectDatabase } from './config/db.js';
-import { seedInitialUsers } from './config/seed.js';
+import { seedInitialUsers } from './scripts/seed.js';
 
 dotenv.config();
 
