@@ -4,6 +4,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import adminAttendanceRoutes from './routes/adminAttendanceRoutes.js';
+import leadRoutes from './routes/leadRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 export const createApp = (): Application => {
@@ -24,8 +25,8 @@ export const createApp = (): Application => {
     })
   );
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Health check
   app.get('/api/health', (_req, res) => {
@@ -37,6 +38,7 @@ export const createApp = (): Application => {
   app.use('/api/admin/employees', userRoutes);
   app.use('/api/attendance', attendanceRoutes);
   app.use('/api/admin/attendance', adminAttendanceRoutes);
+  app.use('/api/leads', leadRoutes);
 
   // 404 handler for undefined API routes
   app.use('/api/*', (_req, res) => {

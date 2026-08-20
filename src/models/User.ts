@@ -30,6 +30,7 @@ export interface IUser extends Document {
   phone: string;
   performanceScore: number;
   assignedLeads: number;
+  lastLeadAssignedAt?: Date | null;
   calls: number;
   meetings: number;
   interested: number;
@@ -107,6 +108,11 @@ const userSchema = new Schema<IUser>(
     assignedLeads: {
       type: Number,
       default: 0,
+    },
+    lastLeadAssignedAt: {
+      type: Date,
+      default: null,
+      index: true,
     },
     calls: {
       type: Number,

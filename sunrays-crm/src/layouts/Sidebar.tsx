@@ -52,7 +52,7 @@ export const Sidebar: React.FC = () => {
     {
       label: 'MANAGEMENT',
       links: [
-        { name: 'All Clients', path: '/dashboard/admin/clients', icon: Users },
+        { name: 'Lead Management', path: '/dashboard/admin/clients', icon: Users },
         { name: 'Employees', path: '/dashboard/admin/employees', icon: Users },
         { name: 'Attendance', path: '/dashboard/admin/attendance', icon: CalendarCheck },
       ],
@@ -85,10 +85,10 @@ export const Sidebar: React.FC = () => {
       label: 'SALES & LEADS',
       links: [
         {
-          name: 'Assigned Clients',
+          name: 'Assigned Leads',
           path: '/dashboard/assigned',
           icon: Users,
-          badge: user?.assignedLeads || 24,
+          badge: user?.assignedLeads,
           moduleId: 'assignedClients',
         },
         {

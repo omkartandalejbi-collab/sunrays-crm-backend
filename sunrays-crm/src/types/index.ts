@@ -139,6 +139,7 @@ export type LeadStatus =
   | 'No Response';
 
 export type Priority = 'High' | 'Medium' | 'Low';
+export type AssignmentStatus = 'Assigned' | 'Unassigned';
 
 export interface Interaction {
   id: string;
@@ -148,7 +149,7 @@ export interface Interaction {
   status: string;
   remark: string;
   createdAt: string;
-  type?: 'Incoming' | 'Outgoing' | 'Missed';
+  type?: 'Incoming' | 'Outgoing' | 'Missed' | 'System';
   duration?: string;
   outcome?: string;
   followUpDate?: string;
@@ -164,14 +165,72 @@ export interface Client {
   location: string;
   status: LeadStatus;
   priority: Priority;
-  assignedEmployeeId: string;
-  assignedDate: string;
+  assignedEmployeeId?: string;
+  assignedTo?: string | null;
+  assignedEmployeeName?: string;
+  assignedEmployeeEmail?: string;
+  assignedDate?: string;
+  assignedAt?: string | null;
+  assignmentStatus?: AssignmentStatus;
+  source?: string;
+  sheetRowId?: string;
   lastContactDate?: string;
   nextFollowUpDate?: string;
   nextFollowUpTime?: string;
   notes?: string;
   interactionHistory?: Interaction[];
   createdAt: string;
+  updatedAt?: string;
+}
+
+export type Lead = Client;
+
+export interface EmployeeLeadCount {
+  employeeId: string;
+  name: string;
+  email: string;
+  department: string;
+  designation: string;
+  status: UserStatus;
+  isAccessEnabled: boolean;
+  avatarUrl?: string;
+  assignedCount: number;
+  convertedCount: number;
+  interestedCount: number;
+}
+
+export interface LeadStats {
+  totalLeads: number;
+  assignedLeads: number;
+  unassignedLeads: number;
+  statusCounts: Record<string, number>;
+  employeeLeadCounts: EmployeeLeadCount[];
+}
+
+export interface SyncReport {
+  totalRows: number;
+  newLeadsAdded: number;
+  duplicatesSkipped: number;
+  assignedCount: number;
+  unassignedCount: number;
+  employeeSummary: Record<string, number>;
+  newLeadSamples?: Array<{ name: string; email: string; assignedTo: string; status: string }>;
+}
+
+export interface LeadFilterParams {
+  search?: string;
+  status?: string;
+  assignmentStatus?: string;
+  employeeId?: string;
+  priority?: string;
+  source?: string;
+  dateRange?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface CallHistory {

@@ -92,6 +92,14 @@ export const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path="/dashboard/admin/leads"
+          element={
+            <AdminRouteGuard>
+              <AdminClients />
+            </AdminRouteGuard>
+          }
+        />
+        <Route
           path="/dashboard/admin/employees"
           element={
             <AdminRouteGuard>

@@ -7,6 +7,7 @@ import {
 } from '../ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Client, Interaction } from '../../types';
+import { leadService } from '../../services/leadService';
 import { format, parseISO } from 'date-fns';
 import { cn } from '../../lib/utils';
 import { Building, Phone, Mail, CalendarDays, Clock, User, PhoneCall, PhoneIncoming, PhoneMissed, CalendarClock, History } from 'lucide-react';
@@ -62,49 +63,75 @@ export const ClientDrawer: React.FC<ClientDrawerProps> = ({
   const interactions = client.interactionHistory || [];
   const historicalInteractions = interactions.slice(1);
 
-  const handleUpdateRemark = () => {
-    if (!client.interactionHistory || client.interactionHistory.length === 0) return;
-    
-    const updatedHistory = [...client.interactionHistory];
-    updatedHistory[0] = {
-      ...updatedHistory[0],
-      remark: currentRemark,
-    };
-    
-    if (onClientUpdate) {
-      onClientUpdate({
-        ...client,
-        interactionHistory: updatedHistory,
+  const handleUpdateRemark = async () => {
+    if (!currentRemark.trim()) return;
+
+    try {
+      const updated = await leadService.updateLeadStatus(client.id, {
+        status: client.status,
+        remark: currentRemark.trim(),
+        followUpDate: client.nextFollowUpDate || null,
+        followUpTime: client.nextFollowUpTime || null,
       });
+
+      if (onClientUpdate) {
+        onClientUpdate(updated);
+      }
+    } catch {
+      // Fallback
+      if (onClientUpdate) {
+        const updatedHistory = [...(client.interactionHistory || [])];
+        if (updatedHistory.length > 0) {
+          updatedHistory[0] = { ...updatedHistory[0], remark: currentRemark };
+        }
+        onClientUpdate({ ...client, interactionHistory: updatedHistory });
+      }
     }
   };
 
-  const handleLogNewCall = () => {
-    const newInteraction: Interaction = {
-      id: `int-${Math.random().toString(36).substring(2, 9)}`,
-      employee: 'Jane Doe', // Current user
-      action: 'Call Logged',
-      status: newCallOutcome,
-      remark: newCallRemark,
-      createdAt: new Date().toISOString(),
-      type: newCallType as any,
-      duration: newCallDuration,
-      outcome: newCallOutcome,
-      followUpDate: newCallFollowUpDate,
-      followUpTime: newCallFollowUpTime,
-    };
-    
-    const updatedHistory = [newInteraction, ...(client.interactionHistory || [])];
-    
-    if (onClientUpdate) {
-      onClientUpdate({
-        ...client,
-        interactionHistory: updatedHistory,
+  const handleLogNewCall = async () => {
+    try {
+      const updated = await leadService.updateLeadStatus(client.id, {
+        status: newCallOutcome as any,
+        remark: newCallRemark || `Call logged (${newCallType} - ${newCallOutcome})`,
+        type: newCallType as any,
+        duration: newCallDuration,
+        outcome: newCallOutcome,
+        followUpDate: newCallFollowUpDate || null,
+        followUpTime: newCallFollowUpTime || null,
       });
+
+      if (onClientUpdate) {
+        onClientUpdate(updated);
+      }
+    } catch {
+      const newInteraction: Interaction = {
+        id: `int-${Math.random().toString(36).substring(2, 9)}`,
+        employee: 'Me',
+        action: 'Call Logged',
+        status: newCallOutcome,
+        remark: newCallRemark,
+        createdAt: new Date().toISOString(),
+        type: newCallType as any,
+        duration: newCallDuration,
+        outcome: newCallOutcome,
+        followUpDate: newCallFollowUpDate,
+        followUpTime: newCallFollowUpTime,
+      };
+
+      const updatedHistory = [newInteraction, ...(client.interactionHistory || [])];
+
+      if (onClientUpdate) {
+        onClientUpdate({
+          ...client,
+          status: newCallOutcome as any,
+          interactionHistory: updatedHistory,
+        });
+      }
     }
-    
+
     setIsNewCallModalOpen(false);
-    
+
     // Reset form
     setNewCallType('Outgoing');
     setNewCallOutcome('Interested');
