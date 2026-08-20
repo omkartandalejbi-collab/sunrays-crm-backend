@@ -13,6 +13,7 @@ import {
   LogOut,
   Clock,
   PhoneCall,
+  CalendarCheck,
 } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
@@ -53,6 +54,7 @@ export const Sidebar: React.FC = () => {
       links: [
         { name: 'All Clients', path: '/dashboard/admin/clients', icon: Users },
         { name: 'Employees', path: '/dashboard/admin/employees', icon: Users },
+        { name: 'Attendance', path: '/dashboard/admin/attendance', icon: CalendarCheck },
       ],
     },
     {
@@ -70,6 +72,12 @@ export const Sidebar: React.FC = () => {
           path: '/dashboard',
           icon: LayoutDashboard,
           moduleId: 'dashboard',
+        },
+        {
+          name: 'Attendance',
+          path: '/dashboard/attendance',
+          icon: CalendarCheck,
+          moduleId: 'attendance',
         },
       ],
     },

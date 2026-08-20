@@ -2,6 +2,8 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import attendanceRoutes from './routes/attendanceRoutes.js';
+import adminAttendanceRoutes from './routes/adminAttendanceRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 export const createApp = (): Application => {
@@ -33,6 +35,8 @@ export const createApp = (): Application => {
   // API Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/admin/employees', userRoutes);
+  app.use('/api/attendance', attendanceRoutes);
+  app.use('/api/admin/attendance', adminAttendanceRoutes);
 
   // 404 handler for undefined API routes
   app.use('/api/*', (_req, res) => {

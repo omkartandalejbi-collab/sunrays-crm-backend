@@ -23,6 +23,7 @@ import {
   UserCircle,
   FileText,
   CheckCircle2,
+  CalendarCheck,
 } from 'lucide-react';
 
 interface ModuleAccessModalProps {
@@ -37,6 +38,7 @@ const moduleIconMap: Record<AppModuleId, React.ElementType> = {
   assignedClients: Users,
   followUps: Clock,
   callHistory: PhoneCall,
+  attendance: CalendarCheck,
   profile: UserCircle,
   reports: FileText,
 };

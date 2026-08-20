@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { User } from '../models/User.js';
+import { Attendance } from '../models/Attendance.js';
+import { attendanceRuleService } from '../services/attendanceRuleService.js';
 import { AuthenticatedRequest } from '../middleware/auth.js';
 
 export const loginSchema = z.object({
@@ -43,6 +45,34 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
+  // Automatic attendance on employee login
+  if (user.role === 'employee') {
+    try {
+      const todayStr = attendanceRuleService.getTodayDateString();
+      const existing = await Attendance.findOne({ employeeId: user._id, date: todayStr });
+      const now = new Date();
+
+      if (!existing) {
+        const initialStatus = attendanceRuleService.calculateInitialStatus(now);
+        await Attendance.create({
+          employeeId: user._id,
+          date: todayStr,
+          checkIn: now,
+          status: initialStatus,
+          workingHours: 0,
+        });
+      } else if (!existing.checkIn) {
+        const initialStatus = attendanceRuleService.calculateInitialStatus(now);
+        existing.checkIn = now;
+        existing.status = initialStatus;
+        await existing.save();
+      }
+      // If today's attendance already has a checkIn timestamp, we DO NOT overwrite it.
+    } catch (attError) {
+      console.error('[Auto-Attendance Login Error]:', attError);
+    }
+  }
+
   const secret = process.env.JWT_SECRET || 'sunrays_crm_jwt_super_secret_production_key_2026';
   const token = jwt.sign(
     {
@@ -58,6 +88,37 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     success: true,
     token,
     user: user.toJSON(),
+  });
+};
+
+export const logout = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  if (req.user && req.user.role === 'employee') {
+    try {
+      const todayStr = attendanceRuleService.getTodayDateString();
+      const record = await Attendance.findOne({ employeeId: req.user._id, date: todayStr });
+      const now = new Date();
+
+      // If record exists with checkIn and hasn't yet recorded checkOut, record checkOut
+      if (record && record.checkIn && !record.checkOut) {
+        const workingHours = attendanceRuleService.calculateWorkingHours(record.checkIn, now);
+        const finalStatus = attendanceRuleService.calculateFinalStatus(
+          record.checkIn,
+          now,
+          record.status
+        );
+        record.checkOut = now;
+        record.workingHours = workingHours;
+        record.status = finalStatus;
+        await record.save();
+      }
+    } catch (attError) {
+      console.error('[Auto-Attendance Logout Error]:', attError);
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Logged out successfully',
   });
 };
 

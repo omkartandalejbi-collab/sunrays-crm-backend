@@ -12,6 +12,7 @@ import { DashboardOverview } from '../pages/Employee/DashboardOverview';
 import { AssignedClients } from '../pages/Employee/AssignedClients';
 import { FollowUps } from '../pages/Employee/FollowUps';
 import { CallHistory } from '../pages/Employee/CallHistory';
+import { Attendance } from '../pages/Employee/Attendance';
 import { Profile } from '../pages/Employee/Profile';
 
 // Admin Pages
@@ -19,6 +20,7 @@ import { AdminDashboard } from '../pages/Admin/AdminDashboard';
 import { AdminClients } from '../pages/Admin/AdminClients';
 import { AdminEmployees } from '../pages/Admin/AdminEmployees';
 import { AdminEmployeeDetail } from '../pages/Admin/AdminEmployeeDetail';
+import { AdminAttendance } from '../pages/Admin/AdminAttendance';
 
 // Placeholder Dashboard content for Phase 1
 const DashboardPlaceholder: React.FC<{ title: string }> = ({ title }) => (
@@ -106,6 +108,14 @@ export const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path="/dashboard/admin/attendance"
+          element={
+            <AdminRouteGuard>
+              <AdminAttendance />
+            </AdminRouteGuard>
+          }
+        />
+        <Route
           path="/dashboard/admin/*"
           element={
             <AdminRouteGuard>
@@ -116,6 +126,14 @@ export const AppRoutes: React.FC = () => {
 
         {/* Employee Routes */}
         <Route path="/dashboard" element={<RoleBasedDashboard />} />
+        <Route
+          path="/dashboard/attendance"
+          element={
+            <ModuleGuard moduleId="attendance">
+              <Attendance />
+            </ModuleGuard>
+          }
+        />
         <Route
           path="/dashboard/assigned"
           element={
