@@ -5,7 +5,7 @@ import { seedInitialUsers } from './scripts/seed.js';
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const DEFAULT_PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async () => {
   try {
@@ -14,10 +14,28 @@ const startServer = async () => {
 
     const app = createApp();
 
-    app.listen(PORT, () => {
-      console.log(`[Server] Sunrays CRM Backend running on http://localhost:${PORT}`);
-      console.log(`[Server] API endpoints available at http://localhost:${PORT}/api`);
-    });
+    const listenOnPort = (port: number) => {
+      const server = app.listen(port, () => {
+        console.log(`[Server] Sunrays CRM Backend running on http://localhost:${port}`);
+        console.log(`[Server] API endpoints available at http://localhost:${port}/api`);
+      });
+
+      server.on('error', (error: any) => {
+        if (error.code === 'EADDRINUSE' && port === 5000) {
+          const fallbackPort = 5001;
+          console.warn(
+            `\n⚠️  [Server] Port 5000 is already in use (commonly used by macOS AirPlay Receiver).`
+          );
+          console.log(`[Server] Automatically starting on fallback port http://localhost:${fallbackPort}...\n`);
+          listenOnPort(fallbackPort);
+        } else {
+          console.error('[Server Error]:', error);
+          process.exit(1);
+        }
+      });
+    };
+
+    listenOnPort(DEFAULT_PORT);
   } catch (error) {
     console.error('[Server] Failed to start server:', error);
     process.exit(1);
@@ -25,3 +43,4 @@ const startServer = async () => {
 };
 
 startServer();
+

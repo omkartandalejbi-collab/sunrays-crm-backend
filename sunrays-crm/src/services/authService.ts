@@ -37,9 +37,18 @@ export const authService = {
     await api.put('/auth/change-password', { currentPassword, newPassword });
   },
 
-  logout: (): void => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  logout: async (): Promise<void> => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await api.post('/auth/logout');
+      }
+    } catch (error) {
+      console.warn('[Logout API Error]:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   },
 
   getStoredToken: (): string | null => {

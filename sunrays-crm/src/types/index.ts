@@ -1,3 +1,5 @@
+export * from './attendance';
+
 export type Role = 'admin' | 'employee';
 export type UserRole = Role;
 
@@ -8,6 +10,7 @@ export type AppModuleId =
   | 'assignedClients'
   | 'followUps'
   | 'callHistory'
+  | 'attendance'
   | 'profile'
   | 'reports';
 
@@ -46,6 +49,13 @@ export const AVAILABLE_MODULES: ModuleMetadata[] = [
     label: 'Call History',
     description: 'View interaction logs, call outcomes, and duration records',
     path: '/dashboard/call-history',
+    defaultEnabled: true,
+  },
+  {
+    id: 'attendance',
+    label: 'Attendance',
+    description: 'Clock in/out, view daily shifts, weekly logs, and monthly attendance',
+    path: '/dashboard/attendance',
     defaultEnabled: true,
   },
   {

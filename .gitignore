@@ -28,3 +28,9 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Project specifics
+sunrays-crm-backend/
+sunrays-crm/node_modules/
+sunrays-crm/dist/
+

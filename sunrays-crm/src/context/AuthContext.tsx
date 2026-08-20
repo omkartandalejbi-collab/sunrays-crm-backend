@@ -7,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   hasModuleAccess: (moduleId: AppModuleId) => boolean;
   refreshUser: () => Promise<void>;
 }
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(currentUser);
     } catch {
       // If token validation fails, clear session
-      authService.logout();
+      await authService.logout();
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -55,8 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = (): void => {
-    authService.logout();
+  const logout = async (): Promise<void> => {
+    await authService.logout();
     setUser(null);
   };
 

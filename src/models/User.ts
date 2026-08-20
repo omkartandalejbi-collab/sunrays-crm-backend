@@ -9,6 +9,7 @@ export const ALL_APP_MODULES = [
   'assignedClients',
   'followUps',
   'callHistory',
+  'attendance',
   'profile',
   'reports'
 ] as const;
@@ -80,7 +81,7 @@ const userSchema = new Schema<IUser>(
     },
     allowedModules: {
       type: [String],
-      default: ['dashboard', 'assignedClients', 'followUps', 'callHistory', 'profile'],
+      default: ['dashboard', 'assignedClients', 'followUps', 'callHistory', 'attendance', 'profile'],
     },
     department: {
       type: String,
@@ -174,7 +175,7 @@ const userSchema = new Schema<IUser>(
               return m;
             });
           } else {
-            ret.allowedModules = ['dashboard', 'assignedClients', 'followUps', 'callHistory', 'profile'];
+            ret.allowedModules = ['dashboard', 'assignedClients', 'followUps', 'callHistory', 'attendance', 'profile'];
           }
         }
 

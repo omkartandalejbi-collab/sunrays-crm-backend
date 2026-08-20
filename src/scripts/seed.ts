@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import { User } from '../models/User.js';
+import { Attendance } from '../models/Attendance.js';
+import { attendanceRuleService } from '../services/attendanceRuleService.js';
 
 dotenv.config();
 
@@ -145,18 +147,98 @@ export const seedUsersData = [
   },
 ];
 
-export async function seedInitialUsers(): Promise<void> {
+export async function seedInitialAttendance(): Promise<void> {
   try {
-    const userCount = await User.countDocuments();
-    if (userCount > 0) {
+    const attendanceCount = await Attendance.countDocuments();
+    if (attendanceCount > 0) {
       return;
     }
 
-    console.log('[Database] Seeding initial admin and employee accounts...');
-    for (const userData of seedUsersData) {
-      await User.create(userData);
+    const employees = await User.find({ role: 'employee' });
+    if (employees.length === 0) return;
+
+    console.log('[Database] Generating development seed attendance records...');
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const todayDate = now.getDate();
+
+    const attendanceRecords = [];
+
+    // Seed previous 18 days of the current month for each employee
+    for (const emp of employees) {
+      for (let day = 1; day < todayDate; day++) {
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // Sunday is Week Off
+        if (attendanceRuleService.isWeekOff(dateStr)) {
+          continue;
+        }
+
+        // Leave for Vikram on specific days
+        if (emp.email === 'vikram.s@sunrays.com' && day > 10) {
+          attendanceRecords.push({
+            employeeId: emp._id,
+            date: dateStr,
+            checkIn: null,
+            checkOut: null,
+            status: 'Leave',
+            workingHours: 0,
+            notes: 'Approved Medical Leave',
+          });
+          continue;
+        }
+
+        // Realistic variation
+        const isLate = (day + emp.name.length) % 5 === 0;
+        const isHalfDay = day % 12 === 0;
+        
+        const checkInHour = isLate ? 9 : 9;
+        const checkInMinute = isLate ? 45 : Math.floor(Math.random() * 20) + 10; // 09:10 - 09:30 or 09:45
+        
+        const checkOutHour = isHalfDay ? 14 : 18;
+        const checkOutMinute = Math.floor(Math.random() * 30) + 30; // 18:30 - 19:00 or 14:30
+
+        const checkInTime = new Date(Date.UTC(year, month - 1, day, checkInHour - 5, checkInMinute - 30)); // UTC approx
+        const checkOutTime = new Date(Date.UTC(year, month - 1, day, checkOutHour - 5, checkOutMinute - 30));
+
+        let status = isLate ? 'Late' : 'Present';
+        if (isHalfDay) status = 'Half Day';
+
+        const workingHours = isHalfDay ? 4.5 : 8.25;
+
+        attendanceRecords.push({
+          employeeId: emp._id,
+          date: dateStr,
+          checkIn: checkInTime,
+          checkOut: checkOutTime,
+          status,
+          workingHours,
+          notes: isLate ? 'Slight traffic delay' : '',
+        });
+      }
     }
-    console.log('[Database] Seeded default users successfully.');
+
+    if (attendanceRecords.length > 0) {
+      await Attendance.insertMany(attendanceRecords);
+      console.log(`[Database] Seeded ${attendanceRecords.length} development attendance records.`);
+    }
+  } catch (error) {
+    console.error('[Database Attendance Seed Error]:', error);
+  }
+}
+
+export async function seedInitialUsers(): Promise<void> {
+  try {
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      console.log('[Database] Seeding initial admin and employee accounts...');
+      for (const userData of seedUsersData) {
+        await User.create(userData);
+      }
+      console.log('[Database] Seeded default users successfully.');
+    }
+    await seedInitialAttendance();
   } catch (error) {
     console.error('[Database Seed Error]:', error);
   }
@@ -172,9 +254,10 @@ export async function runSeed(): Promise<void> {
     console.log('[Seed] Connected successfully.');
 
     if (isFresh) {
-      console.log('[Seed] --fresh flag detected. Clearing existing users collection...');
+      console.log('[Seed] --fresh flag detected. Clearing existing users and attendance collections...');
       await User.deleteMany({});
-      console.log('[Seed] Cleared users collection.');
+      await Attendance.deleteMany({});
+      console.log('[Seed] Cleared users and attendance collections.');
     } else {
       const count = await User.countDocuments();
       if (count > 0) {
@@ -189,6 +272,8 @@ export async function runSeed(): Promise<void> {
       await User.create(userData);
       console.log(`  ✓ Created ${userData.role.toUpperCase()}: ${userData.name} (${userData.email})`);
     }
+
+    await seedInitialAttendance();
 
     console.log(`\n[Seed] Successfully seeded ${seedUsersData.length} users into MongoDB.`);
     console.log('\nDefault credentials:');
