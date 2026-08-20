@@ -1,0 +1,136 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Global Design Tokens */
+    --background: 210 40% 98%; /* #F8FAFC */
+    --foreground: 222.2 47.4% 11.2%; /* #0F172A */
+    
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 221.2 83.2% 53.3%; /* #2563EB */
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 223.7 76.6% 47.8%; /* #1D4ED8 */
+
+    --secondary: 210 40% 98.1%; 
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 214 100% 97%; /* #EFF6FF Hover Background */
+    --muted-foreground: 215.4 16.3% 46.9%; /* #64748B */
+
+    --accent: 214 100% 97%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%; /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142.1 70.6% 45.3%; /* #22C55E */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 37.7 92.1% 50.2%; /* #F59E0B */
+    --warning-foreground: 0 0% 100%;
+
+    --info: 198.6 88.7% 48.4%; /* #0EA5E9 */
+    --info-foreground: 0 0% 100%;
+
+    --border: 214.3 31.8% 91.4%; /* #E2E8F0 */
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 1rem; /* 16px radius for standard cards */
+
+    /* Chart Colors */
+    --chart-1: 221.2 83.2% 53.3%; 
+    --chart-2: 198.6 88.7% 48.4%; 
+    --chart-3: 142.1 70.6% 45.3%; 
+    --chart-4: 37.7 92.1% 50.2%; 
+    --chart-5: 0 84.2% 60.2%; 
+
+    /* Sidebar Theme */
+    --sidebar-background: 222.2 47.4% 11.2%; /* #0F172A */
+    --sidebar-foreground: 214.3 31.8% 91.4%;
+    --sidebar-primary: 221.2 83.2% 53.3%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222.2 47.4% 16%; 
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 222.2 47.4% 16%;
+    --sidebar-ring: 221.2 83.2% 53.3%;
+  }
+
+  .dark {
+    /* Forcing light mode base for consistency in this enterprise theme phase */
+    /* Only minor variations if user manually toggles dark mode, though prompt asks for Blue/White strictly */
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 47.4% 16%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 47.4% 16%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 222.2 47.4% 20%;
+    --muted-foreground: 214.3 31.8% 91.4%;
+    --accent: 222.2 47.4% 20%;
+    --accent-foreground: 210 40% 98%;
+    --border: 222.2 47.4% 25%;
+    --input: 222.2 47.4% 25%;
+  }
+
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+  .shadow-soft-hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  }
+  .transition-soft {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  /* Typography Scale */
+  .text-dashboard-title {
+    @apply text-[36px] font-bold leading-tight tracking-tight text-foreground;
+  }
+  .text-section-title {
+    @apply text-[24px] font-semibold leading-snug tracking-tight text-foreground;
+  }
+  .text-card-title {
+    @apply text-[18px] font-semibold leading-normal text-foreground;
+  }
+  .text-body {
+    @apply text-[15px] font-normal leading-relaxed text-foreground;
+  }
+  .text-small-label {
+    @apply text-[12px] font-medium uppercase tracking-wider text-muted-foreground;
+  }
+  
+  /* Layout utilities */
+  .enterprise-card {
+    @apply bg-card rounded-[16px] p-6 border border-border shadow-soft;
+  }
+}
