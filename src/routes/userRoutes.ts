@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  getAssignableEmployees,
   getAllEmployees,
   getEmployeeById,
   createEmployee,
@@ -19,8 +20,13 @@ import { validateBody } from '../middleware/validate.js';
 
 const router = Router();
 
-// All routes here require authentication and Admin role
+// Routes requiring authentication
 router.use(authenticateToken);
+
+// Authenticated users can fetch active assignable employees
+router.get('/assignable', getAssignableEmployees);
+
+// Admin-only management routes
 router.use(requireAdmin);
 
 router.get('/', getAllEmployees);
