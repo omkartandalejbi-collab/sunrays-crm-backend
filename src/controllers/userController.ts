@@ -55,6 +55,20 @@ const getParamId = (id: string | string[] | undefined): string => {
   return id || '';
 };
 
+export const getAssignableEmployees = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
+  const employees = await User.find({
+    role: 'employee',
+    isAccessEnabled: true,
+    status: { $nin: ['Inactive', 'Offline'] }
+  }).sort({ name: 1 });
+
+  res.status(200).json({
+    success: true,
+    count: employees.length,
+    employees: employees.map((emp) => emp.toJSON()),
+  });
+};
+
 export const getAllEmployees = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const { search, department, role, status, isAccessEnabled } = req.query;
 

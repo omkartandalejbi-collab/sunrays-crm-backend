@@ -44,6 +44,29 @@ export const userService = {
     return response.data.employees || [];
   },
 
+  getAssignableEmployees: async (): Promise<Employee[]> => {
+    try {
+      const response = await api.get<{ success: boolean; count: number; employees: Employee[] }>(
+        '/admin/employees/assignable'
+      );
+      if (response.data?.employees && response.data.employees.length > 0) {
+        return response.data.employees;
+      }
+    } catch {
+      // Fallback below
+    }
+    try {
+      const all = await userService.getEmployees();
+      if (all && all.length > 0) {
+        return all.filter(e => e.role === 'employee' && e.isAccessEnabled !== false && e.status !== 'Inactive' && e.status !== 'Offline');
+      }
+    } catch {
+      // Fallback below
+    }
+    const { mockEmployees } = await import('../mock/users');
+    return mockEmployees.filter(e => e.role === 'employee' && e.isAccessEnabled !== false && e.status !== 'Inactive' && e.status !== 'Offline');
+  },
+
   getEmployeeById: async (id: string): Promise<Employee> => {
     const response = await api.get<{ success: boolean; employee: Employee }>(
       `/admin/employees/${id}`
